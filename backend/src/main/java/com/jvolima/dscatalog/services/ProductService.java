@@ -2,6 +2,8 @@ package com.jvolima.dscatalog.services;
 
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -43,12 +45,25 @@ public class ProductService {
 	}
 	
 	@Transactional
-	public ProductDTO insert (ProductDTO dto) {
+	public ProductDTO insert(ProductDTO dto) {
 		Product entity = new Product();
 		copyDtoToEntity(dto, entity);
 		entity = repository.save(entity);
 		
 		return new ProductDTO(entity);
+	}
+	
+	@Transactional
+	public ProductDTO update(Long id, ProductDTO dto) {
+		try {
+			Product entity = repository.getOne(id);
+			copyDtoToEntity(dto, entity);
+			entity = repository.save(entity);
+			
+			return new ProductDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id " + id + " not found.");
+		}
 	}
 	
 	public void delete(Long id) {
