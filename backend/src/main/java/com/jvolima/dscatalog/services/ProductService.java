@@ -10,8 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jvolima.dscatalog.dto.CategoryDTO;
 import com.jvolima.dscatalog.dto.ProductDTO;
+import com.jvolima.dscatalog.entities.Category;
 import com.jvolima.dscatalog.entities.Product;
+import com.jvolima.dscatalog.repositories.CategoryRepository;
 import com.jvolima.dscatalog.repositories.ProductRepository;
 import com.jvolima.dscatalog.services.exceptions.DatabaseException;
 import com.jvolima.dscatalog.services.exceptions.ResourceNotFoundException;
@@ -20,6 +23,9 @@ import com.jvolima.dscatalog.services.exceptions.ResourceNotFoundException;
 public class ProductService {
 	@Autowired
 	ProductRepository repository;
+	
+	@Autowired
+	CategoryRepository categoryRepository;
 	
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPaged(PageRequest page) {
@@ -36,6 +42,15 @@ public class ProductService {
 		return new ProductDTO(entity, entity.getCategories());
 	}
 	
+	@Transactional
+	public ProductDTO insert (ProductDTO dto) {
+		Product entity = new Product();
+		copyDtoToEntity(dto, entity);
+		entity = repository.save(entity);
+		
+		return new ProductDTO(entity);
+	}
+	
 	public void delete(Long id) {
 		try {
 			repository.deleteById(id);
@@ -43,6 +58,20 @@ public class ProductService {
 			throw new ResourceNotFoundException("Id " + id + " not found.");
 		} catch (DataIntegrityViolationException e) {
 			throw new DatabaseException("Integrity violation.");
+		}
+	}
+	
+	private void copyDtoToEntity(ProductDTO dto, Product entity) {
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setDate(dto.getDate());
+		entity.setImgUrl(dto.getImgUrl());
+		entity.setPrice(dto.getPrice());
+		
+		entity.getCategories().clear();
+		for (CategoryDTO catDto : dto.getCategories()) {
+			Category category = categoryRepository.getOne(catDto.getId());
+			entity.getCategories().add(category);
 		}
 	}
 }
