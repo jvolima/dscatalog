@@ -40,7 +40,7 @@ public class Product implements Serializable {
 			inverseJoinColumns = @JoinColumn(name = "category_id"))
 	Set<Category> categories = new HashSet<>();
 	
-	public Product () {
+	public Product() {
 		
 	}
 	

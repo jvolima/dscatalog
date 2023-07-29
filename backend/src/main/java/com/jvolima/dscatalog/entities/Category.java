@@ -29,20 +29,20 @@ public class Category implements Serializable {
 	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
 	private Instant updatedAt;
 	
-	public Category () {
+	public Category() {
 		
 	}
 	
-	public Category (Long id, String name) {
+	public Category(Long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 	
-	public Long getId () {
+	public Long getId() {
 		return id;
 	}
 	
-	public void setId (Long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	
@@ -50,7 +50,7 @@ public class Category implements Serializable {
 		return name;
 	}
 	
-	public void setName (String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 	 
