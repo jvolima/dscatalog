@@ -29,7 +29,7 @@ public class ProductRepositoryTests {
 	}
 	
 	@Test
-	public void findByIdShouldReturnNonEmptyObjectWhenIdExist() {
+	public void findByIdShouldReturnNonEmptyObjectWhenIdExists() {
 		Optional<Product> result = repository.findById(existingId);
 		
 		Assertions.assertTrue(result.isPresent());
@@ -54,7 +54,7 @@ public class ProductRepositoryTests {
 	}
 	
 	@Test
-	public void deleteShouldDeleteObjectWhenIdExist() {		
+	public void deleteShouldDeleteObjectWhenIdExists() {		
 		repository.deleteById(existingId);
 		
 		Optional<Product> result = repository.findById(existingId);
