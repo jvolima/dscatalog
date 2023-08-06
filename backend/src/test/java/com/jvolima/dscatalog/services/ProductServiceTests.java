@@ -31,12 +31,6 @@ import com.jvolima.dscatalog.services.exceptions.DatabaseException;
 import com.jvolima.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.jvolima.dscatalog.tests.Factory;
 
-/*
- * - [ x ] Mock get one product with existing id
- * - [ x ] Mock get one product with non existing id
- * - [ x ] Mock get one category
- */
-
 @ExtendWith(SpringExtension.class)
 public class ProductServiceTests {
 	@InjectMocks
@@ -58,9 +52,9 @@ public class ProductServiceTests {
 	@BeforeEach
 	void setUp() throws Exception {
 		existingId = 1L;
-		nonExistingId = 1000L;
-		dependentId = 10L;
-		categoryId = 2L;
+		nonExistingId = 2L;
+		dependentId = 3L;
+		categoryId = 4L;
 		product = Factory.createProduct();
 		page = new PageImpl<>(List.of(product));
 		
