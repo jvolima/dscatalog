@@ -103,6 +103,13 @@ public class ProductServiceTests {
 	}
 	
 	@Test
+	public void insertShouldReturnProductDTO() {
+		ProductDTO dto = service.insert(Factory.createProductDTO());
+		
+		Assertions.assertNotNull(dto);
+	}
+	
+	@Test
 	public void updateShouldReturnProductDTOWhenIdExists() {
 		ProductDTO dto = service.update(existingId, Factory.createProductDTO());
 		
