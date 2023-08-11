@@ -2,8 +2,7 @@ package com.jvolima.dscatalog.dto;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.jvolima.dscatalog.entities.Category;
@@ -19,7 +18,7 @@ public class ProductDTO implements Serializable {
 	private String imgUrl;
 	private Instant date;
 	
-	private List<CategoryDTO> categories = new ArrayList<>();
+	private Set<CategoryDTO> categories = new HashSet<>();
 	
 	public ProductDTO() {
 		
@@ -96,11 +95,7 @@ public class ProductDTO implements Serializable {
 		this.date = date;
 	}
 
-	public List<CategoryDTO> getCategories() {
+	public Set<CategoryDTO> getCategories() {
 		return categories;
-	}
-
-	public void setCategories(List<CategoryDTO> categories) {
-		this.categories = categories;
 	}
 }
