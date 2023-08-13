@@ -83,7 +83,7 @@ public class UserService {
 		}
 	}
 	
-	private User copyDtoToEntity(UserDTO dto, User entity) {
+	private void copyDtoToEntity(UserDTO dto, User entity) {
 		entity.setFirstName(dto.getFirstName());
 		entity.setLastName(dto.getLastName());
 		entity.setEmail(dto.getEmail());
@@ -93,7 +93,5 @@ public class UserService {
 			Role role = roleRepository.getOne(roleDto.getId());
 			entity.getRoles().add(role);
 		}
-			
-		return entity;
 	}
 }

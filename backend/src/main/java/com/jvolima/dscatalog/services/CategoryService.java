@@ -20,7 +20,6 @@ import com.jvolima.dscatalog.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class CategoryService {
-	
 	@Autowired
 	private CategoryRepository repository;
 	
