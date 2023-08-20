@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jvolima.dscatalog.tests.TokenUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +31,23 @@ public class ProductResourceIT {
 	
 	@Autowired
 	ObjectMapper objectMapper;
+
+	@Autowired
+	TokenUtil tokenUtil;
 	
 	private Long existingId;
 	private Long nonExistingId;
 	private Long countTotalProducts;
+	private String operatorUsername;
+	private String operatorPassword;
 	
 	@BeforeEach
 	void setUp() throws Exception {
 		existingId = 1L;
 		nonExistingId = 1000L;
 		countTotalProducts = 25L;
+		operatorUsername = "alex@gmail.com";
+		operatorPassword = "123456";
 	}
 	
 	@Test
@@ -56,17 +64,37 @@ public class ProductResourceIT {
 		result.andExpect(jsonPath("$.content[1].name").value("PC Gamer"));
 		result.andExpect(jsonPath("$.content[2].name").value("PC Gamer Alfa"));
 	}
-	
+
 	@Test
-	public void insertShouldReturnProductDTO() throws Exception {
+	public void insertShouldReturn401WhenNoUserLogged() throws Exception {
 		ProductDTO productDTO = Factory.createProductDTO();
 		String jsonBody = objectMapper.writeValueAsString(productDTO);
-		
+
+		String expectedName = productDTO.getName();
+		String expectedDescription = productDTO.getDescription();
+
+		ResultActions result =
+				mockMvc.perform(post("/products")
+						.content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isUnauthorized());
+	}
+	
+	@Test
+	public void insertShouldReturnProductDTOWhenOperatorLogged() throws Exception {
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, operatorUsername, operatorPassword);
+
+		ProductDTO productDTO = Factory.createProductDTO();
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
 		String expectedName = productDTO.getName();
 		String expectedDescription = productDTO.getDescription();
 		
 		ResultActions result = 
 				mockMvc.perform(post("/products")
+						.header("Authorization", "Bearer " + accessToken)
 						.content(jsonBody)
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON));
@@ -76,9 +104,28 @@ public class ProductResourceIT {
 		result.andExpect(jsonPath("$.name").value(expectedName));
 		result.andExpect(jsonPath("$.description").value(expectedDescription));
 	}
+
+	@Test
+	public void updateShouldReturn401WhenNoUserLogged() throws Exception {
+		ProductDTO productDTO = Factory.createProductDTO();
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		String expectedName = productDTO.getName();
+		String expectedDescription = productDTO.getDescription();
+
+		ResultActions result =
+				mockMvc.perform(put("/products/{id}", existingId)
+						.content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isUnauthorized());
+	}
 	
 	@Test
-	public void updateShouldReturnProductDTOWhenIdExists() throws Exception {
+	public void updateShouldReturnProductDTOWhenIdExistsAndOperatorLogged() throws Exception {
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, operatorUsername, operatorPassword);
+
 		ProductDTO productDTO = Factory.createProductDTO();
 		String jsonBody = objectMapper.writeValueAsString(productDTO);
 		
@@ -87,6 +134,7 @@ public class ProductResourceIT {
 		
 		ResultActions result = 
 				mockMvc.perform(put("/products/{id}", existingId)
+						.header("Authorization", "Bearer " + accessToken)
 						.content(jsonBody)
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON));
@@ -99,31 +147,49 @@ public class ProductResourceIT {
 	
 	@Test
 	public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, operatorUsername, operatorPassword);
+
 		ProductDTO productDTO = Factory.createProductDTO();
 		String jsonBody = objectMapper.writeValueAsString(productDTO);
 		
 		ResultActions result = 
 				mockMvc.perform(put("/products/{id}", nonExistingId)
+						.header("Authorization", "Bearer " + accessToken)
 						.content(jsonBody)
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON));
 		
 		result.andExpect(status().isNotFound());
 	}
-	
+
 	@Test
-	public void deleteShouldReturnNoContentWhenIdExists() throws Exception {		
+	public void deleteShouldReturn401WhenNoUserLogged() throws Exception {
+		ResultActions result =
+				mockMvc.perform(delete("/products/{id}", existingId)
+						.accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void deleteShouldReturnNoContentWhenIdExists() throws Exception {
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, operatorUsername, operatorPassword);
+
 		ResultActions result = 
 				mockMvc.perform(delete("/products/{id}", existingId)
+						.header("Authorization", "Bearer " + accessToken)
 						.accept(MediaType.APPLICATION_JSON));
 		
 		result.andExpect(status().isNoContent());
 	}
 	
 	@Test
-	public void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {		
+	public void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, operatorUsername, operatorPassword);
+
 		ResultActions result = 
 				mockMvc.perform(delete("/products/{id}", nonExistingId)
+						.header("Authorization", "Bearer " + accessToken)
 						.accept(MediaType.APPLICATION_JSON));
 		
 		result.andExpect(status().isNotFound());
